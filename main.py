@@ -1,21 +1,29 @@
-import time, requests, feedparser, os
+import os
+import time
+import requests
+from threading import Thread
+from flask import Flask
+
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
-YOUR_CHAT_ID = os.environ.get("CHAT_ID")
-CHANNEL_ID = "UC-B1DgLsZVCsmn86m3diX3w"
-RSS_URL = f"https://www.youtube.com/feeds/videos.xml?channel_id={CHANNEL_ID}"
-def send_msg(title, link):
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    text = f"🔥 <b>THE CASETOO নতুন ভিডিও!</b>\n\n📌 {title}\n\n▶️ <a href='{link}'>ক্লিক করে দেখো</a>\n\n{link}"
-    requests.post(url, data={"chat_id": YOUR_CHAT_ID, "text": text, "parse_mode": "HTML"})
-feed = feedparser.parse(RSS_URL)
-last_id = feed.entries[0].yt_videoid if feed.entries else None
-if feed.entries:
-    send_msg(f"✅ বট ২৪ ঘণ্টা চালু হলো! শেষ ভিডিও: {feed.entries[0].title}", feed.entries[0].link)
-while True:
-    try:
-        feed = feedparser.parse(RSS_URL)
-        if feed.entries and feed.entries[0].yt_videoid!= last_id:
-            last_id = feed.entries[0].yt_videoid
-            send_msg(feed.entries[0].title, feed.entries[0].link)
-    except: pass
-    time.sleep(300)
+CHAT_ID = os.environ.get("CHAT_ID")
+
+app = Flask(__name__)
+@app.route('/')
+def home():
+    return "Bot is Alive!"
+
+def run_web():
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 10000)))
+
+def run_bot():
+    while True:
+        try:
+            url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage?chat_id={CHAT_ID}&text=✅ Bot 24h Active"
+            requests.get(url)
+            time.sleep(3600)
+        except:
+            time.sleep(10)
+
+if __name__ == "__main__":
+    Thread(target=run_bot).start()
+    run_web()
