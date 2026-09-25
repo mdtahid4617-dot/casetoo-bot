@@ -1,6 +1,6 @@
 import time, requests, feedparser, os
-BOT_TOKEN = os.environ.get("8707938321:AAHieI8e5IP0gwJX83GSIlT6Ltbw9Hc5fJc")
-YOUR_CHAT_ID = os.environ.get("7825291353")
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+YOUR_CHAT_ID = os.environ.get("CHAT_ID")
 CHANNEL_ID = "UC-B1DgLsZVCsmn86m3diX3w"
 RSS_URL = f"https://www.youtube.com/feeds/videos.xml?channel_id={CHANNEL_ID}"
 def send_msg(title, link):
