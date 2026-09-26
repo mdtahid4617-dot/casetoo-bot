@@ -1,8 +1,10 @@
-import os, re, requests, feedparser
+import os, re, requests, feedparser, threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 
 CHANNEL_HANDLES = [
     "@THECASETOO",
@@ -13,6 +15,19 @@ CHANNEL_HANDLES = [
 ]
 
 LAST_FILE = "last_videos.txt"
+
+# Render এর জন্য Dummy Web Server - এটা থাকলে No open ports Error আসবে না
+def run_dummy_server():
+    port = int(os.environ.get("PORT", 10000))
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"Bot is Running!")
+    server = HTTPServer(('0.0.0.0', port), Handler)
+    server.serve_forever()
+
+threading.Thread(target=run_dummy_server, daemon=True).start()
 
 def get_channel_id(handle):
     try:
@@ -65,7 +80,6 @@ async def send_latest_videos(context, chat_id):
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("⏳ ৫ টা চ্যানেলের লেটেস্ট ভিডিও আনছি...")
     await send_latest_videos(context, update.effective_chat.id)
-    await update.message.reply_text("✅ এরপর থেকে নতুন ভিডিও আসলেই অটো পাবে!")
 
 async def check_new_videos(context: ContextTypes.DEFAULT_TYPE):
     last_data = load_last()
@@ -90,10 +104,8 @@ async def check_new_videos(context: ContextTypes.DEFAULT_TYPE):
     save_last(last_data)
 
 async def post_init(application):
-    # প্রতি ৬০ সেকেন্ডে নতুন ভিডিও চেক করবে
-    chat_id = os.getenv("CHAT_ID")
-    if chat_id:
-        application.job_queue.run_repeating(check_new_videos, interval=60, first=10, chat_id=chat_id)
+    if CHAT_ID:
+        application.job_queue.run_repeating(check_new_videos, interval=60, first=10, chat_id=CHAT_ID)
 
 if __name__ == "__main__":
     app = Application.builder().token(BOT_TOKEN).build()
