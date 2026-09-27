@@ -11,7 +11,7 @@ CHANNEL_HANDLES = [
     "@casetooop",
     "@casetoolive",
     "@casetooclips",
-    "@MRINDIANHACKER",
+    "https://www.youtube.com/@mrindianhacker"
 ]
 
 LAST_FILE = "last_videos.txt"
