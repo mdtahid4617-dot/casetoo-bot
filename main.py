@@ -7,7 +7,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
 CHANNEL_HANDLES = [
-    "@thecasetoo",
+    "@thecasetoopapa",
     "@casetooop",
     "@casetoolive",
     "@casetooclips",
